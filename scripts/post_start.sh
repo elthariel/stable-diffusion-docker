@@ -17,3 +17,8 @@ if [[ -d /workspace/elthariel/experiments ]]; then
     python /workspace/elthariel/experiments/helpers/system.py
     python /workspace/elthariel/experiments/start.py
 fi
+
+echo "Installing extensions..."
+cd /stable-diffusion-webui
+git clone --depth=1 https://github.com/Zyin055/Config-Presets.git\
+    extensions/Config-Presets
