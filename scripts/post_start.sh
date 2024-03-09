@@ -22,3 +22,11 @@ echo "Installing extensions..."
 cd /stable-diffusion-webui
 git clone --depth=1 https://github.com/Zyin055/Config-Presets.git\
     extensions/Config-Presets
+
+
+echo "Setting JPLab theme to dark..."
+cfg='{"theme": "JupyterLab Dark"}'
+cfg_dir="$HOME/.jupyter/lab/user-settings/@jupyterlab/apputils-extension"
+cfg_file="$cfg_dir/themes.jupyterlab-settings"
+mkdir -p "$cfg_dir"
+echo "$cfg" > "$cfg_file"
