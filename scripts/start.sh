@@ -3,6 +3,24 @@
 #                          Function Definitions                                #
 # ---------------------------------------------------------------------------- #
 
+setup_nginx_auth() {
+    local htpasswd_file="/etc/nginx/htpasswd"
+
+    if [[ -n "$HTTP_AUTH_USERNAME" && -n "$HTTP_AUTH_PASSWORD" ]]; then
+        echo "Setting up Nginx authentication..."
+
+        local md5_password=$(openssl passwd -apr1 "$HTTP_AUTH_PASSWORD")
+        local htpasswd="${HTTP_AUTH_USERNAME}:${md5_password}"
+
+        echo "${htpasswd}" > "$htpasswd_file"
+        sed -i 's/auth_basic off/auth_basic "StableDiffusion Web UI"/' /etc/nginx/nginx.conf
+    else
+        echo "Nginx authentication disabled..."
+
+        touch "$htpasswd_file"
+    fi
+}
+
 start_nginx() {
     echo "Starting Nginx service..."
     service nginx start
@@ -63,12 +81,12 @@ export_env_vars() {
 }
 
 start_jupyter() {
-    # Default to not using a password
-    JUPYTER_PASSWORD=""
-
-    # Allow a password to be set by providing the JUPYTER_PASSWORD environment variable
-    if [[ ${JUPYTER_LAB_PASSWORD} ]]; then
-        JUPYTER_PASSWORD=${JUPYTER_LAB_PASSWORD}
+    local hashed_password=""
+    if [[ "$JUPYTER_PASSWORD" ]]; then
+        echo "Enabling Jupyter Lab autentication..."
+        local imports="import os; from jupyter_server.auth import passwd;"
+        local passwd_cmd="print(passwd(os.environ['JUPYTER_PASSWORD']))"
+        hashed_password=$(python -c "${imports} ${passwd_cmd}")
     fi
 
     echo "Starting Jupyter Lab..."
@@ -81,7 +99,8 @@ start_jupyter() {
       --FileContentsManager.delete_to_trash=False \
       --ContentsManager.allow_hidden=True \
       --ServerApp.terminado_settings='{"shell_command":["/bin/bash"]}' \
-      --ServerApp.token=${JUPYTER_PASSWORD} \
+      --ServerApp.token="" \
+      --ServerApp.password="'$hashed_password'" \
       --ServerApp.allow_origin=* \
       --ServerApp.preferred_dir=/workspace &> /workspace/logs/jupyter.log &
     echo "Jupyter Lab started"
@@ -158,6 +177,7 @@ EOF
 # ---------------------------------------------------------------------------- #
 
 echo "Container Started, configuration in progress..."
+setup_nginx_auth
 start_nginx
 setup_ssh
 start_jupyter
