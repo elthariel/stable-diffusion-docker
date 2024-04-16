@@ -65,6 +65,10 @@ link_models() {
        ln -s /sd-models/sd_xl_refiner_1.0.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/sd_xl_refiner_1.0.safetensors
    fi
 
+   if [[ ! -L /workspace/stable-diffusion-webui/models/Stable-diffusion/AAM_XL_Anime_Mix.safetensors ]]; then
+       ln -s /sd-models/AAM_XL_Anime_Mix.safetensors /workspace/stable-diffusion-webui/models/Stable-diffusion/AAM_XL_Anime_Mix.safetensors
+   fi
+
    if [[ ! -L /workspace/stable-diffusion-webui/models/VAE/sdxl_vae.safetensors ]]; then
        ln -s /sd-models/sdxl_vae.safetensors /workspace/stable-diffusion-webui/models/VAE/sdxl_vae.safetensors
    fi
