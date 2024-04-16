@@ -8,9 +8,11 @@ RUN mkdir -p /sd-models
 #   wget https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
 #   wget https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0.safetensors
 #   wget https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors
+#   wget https://huggingface.co/Lykon/AAM_XL_AnimeMix/resolve/main/AAM_XL_Anime_Mix.safetensors
 COPY sd_xl_base_1.0.safetensors /sd-models/sd_xl_base_1.0.safetensors
-COPY sd_xl_refiner_1.0.safetensors /sd-models/sd_xl_refiner_1.0.safetensors
+COPY AAM_XL_Anime_Mix.safetensors /sd-models/AAM_XL_Anime_Mix.safetensors
 COPY sdxl_vae.safetensors /sd-models/sdxl_vae.safetensors
+# COPY sd_xl_refiner_1.0.safetensors /sd-models/sd_xl_refiner_1.0.safetensors
 
 # Copy the build scripts
 WORKDIR /
@@ -31,11 +33,11 @@ RUN /install_a1111.sh
 WORKDIR /stable-diffusion-webui
 COPY a1111/cache-sd-model.py ./
 RUN source /venv/bin/activate && \
-    python3 cache-sd-model.py --skip-torch-cuda-test --use-cpu=all --ckpt /sd-models/sd_xl_base_1.0.safetensors && \
-    python3 cache-sd-model.py --skip-torch-cuda-test --use-cpu=all --ckpt /sd-models/sd_xl_refiner_1.0.safetensors && \
+    python3 cache-sd-model.py --skip-torch-cuda-test --use-cpu=all \
+      --ckpt /sd-models/sd_xl_base_1.0.safetensors && \
+    python3 cache-sd-model.py --skip-torch-cuda-test --use-cpu=all \
+      --ckpt /sd-models/AAM_XL_Anime_Mix.safetensors && \
     deactivate
-
-# RUN cd /stable-diffusion-webui && python cache.py --use-cpu=all --ckpt /model.safetensors
 
 # Copy Stable Diffusion Web UI config files
 COPY a1111/relauncher.py a1111/webui-user.sh a1111/config.json a1111/ui-config.json /stable-diffusion-webui/
@@ -74,10 +76,6 @@ RUN /install_tensorboard.sh
 ARG APP_MANAGER_VERSION
 RUN /install_app_manager.sh
 COPY app-manager/config.json /app-manager/public/config.json
-
-# Install CivitAI Model Downloader
-ARG CIVITAI_DOWNLOADER_VERSION
-RUN /install_civitai_model_downloader.sh
 
 # Cleanup installation scripts
 RUN rm -f /install_*.sh
