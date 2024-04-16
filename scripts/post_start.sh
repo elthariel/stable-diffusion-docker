@@ -29,12 +29,15 @@ cfg_file="$cfg_dir/themes.jupyterlab-settings"
 mkdir -p "$cfg_dir"
 echo "$cfg" > "$cfg_file"
 
-if [[ -d "/workspace/$HF_USERNAME/experiments" ]]; then
-    echo "Running Lta's setup scripts..."
-    python "/workspace/$HF_USERNAME/experiments/helpers/system.py"
-    python "/workspace/$HF_USERNAME/experiments/start.py"
+if [ -n "$HF_REPO" -a -n "$HF_TOKEN" -a \! -f /workspace/repo ]; then
+    git clone https://$HF_USERNAME:$HF_TOKEN@huggingface.co/datasets/$HF_REPO \
+        /workspace/repo
 fi
 
+if [[ -d "/workspace/repo" ]]; then
+    echo "Running repo setup scripts..."
+    bash /workspace/repo/start.sh
+fi
 
 ATUIN_USER=${ATUIN_USER:-coolta}
 if [ -n "$ATUIN_PASSWORD" -a -n "$ATUIN_KEY" -a -f /usr/bin/atuin ]; then
@@ -42,3 +45,8 @@ if [ -n "$ATUIN_PASSWORD" -a -n "$ATUIN_KEY" -a -f /usr/bin/atuin ]; then
     atuin login -u "$ATUIN_USER" -p "$ATUIN_PASSWORD" -k "$ATUIN_KEY"
     atuin store pull
 fi
+
+envfile='/.env'
+echo "Storing start environment into $envfile"
+env > "$envfile"
+chmod 600 "$envfile"
