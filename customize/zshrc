@@ -17,6 +17,7 @@ setopt promptsubst
 antigen use oh-my-zsh
 
 # Bundles from the default repo (robbyrussell's oh-my-zsh)
+antigen bundle history
 antigen bundle common-aliases
 antigen bundle git
 antigen bundle gitfast
@@ -31,7 +32,6 @@ antigen bundle atuinsh/atuin@main
 antigen theme robbyrussell
 
 # Local customizations, e.g. theme, plugins, aliases, etc.
-[ -f $HOME/.zshrc.local ] && source $HOME/.zshrc.local
 [ -f "/workspace/$HF_USERNAME/repo/.zshrc.local" ] && \
     source "/workspace/$HF_USERNAME/repo/.zshrc.local"
 
