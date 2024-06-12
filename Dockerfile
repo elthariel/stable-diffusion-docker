@@ -67,7 +67,7 @@ COPY kohya_ss/requirements* ./
 RUN /install_kohya.sh
 
 # Copy the accelerate configuration
-COPY kohya_ss/accelerate.yaml ./
+COPY kohya_ss/accelerate.yaml /
 
 # Install Tensorboard
 RUN /install_tensorboard.sh
